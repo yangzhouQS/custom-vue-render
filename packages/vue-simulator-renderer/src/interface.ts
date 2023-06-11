@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router';
-import type { Config, I18nMessages } from '@knxcloud/lowcode-vue-renderer';
+import type { Config, I18nMessages } from './custom-vue-render';
 import type { DesignMode } from '@knxcloud/lowcode-hooks';
 import type { Component, ComponentPublicInstance, App } from 'vue';
 import type {

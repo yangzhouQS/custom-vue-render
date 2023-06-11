@@ -1,8 +1,8 @@
-import { ref, Suspense, type PropType } from 'vue';
-import type { DocumentInstance, VueSimulatorRenderer } from './interface';
-import { defineComponent, h, renderSlot } from 'vue';
-import LowCodeRenderer from '@knxcloud/lowcode-vue-renderer';
-import { RouterView } from 'vue-router';
+import {ref, Suspense, type PropType} from 'vue';
+import type {DocumentInstance, VueSimulatorRenderer} from './interface';
+import {defineComponent, h, renderSlot} from 'vue';
+import LowCodeRenderer from './custom-vue-render';
+import {RouterView} from 'vue-router';
 
 export const Layout = defineComponent({
   props: {
@@ -12,16 +12,16 @@ export const Layout = defineComponent({
     },
   },
   render() {
-    const { simulator, $slots } = this;
-    const { layout, getComponent } = simulator;
+    const {simulator, $slots} = this;
+    const {layout, getComponent} = simulator;
     if (layout) {
-      const { Component, props = {}, componentName } = layout;
+      const {Component, props = {}, componentName} = layout;
       if (Component) {
-        return h(Component, { ...props, key: 'layout', simulator } as any, $slots);
+        return h(Component, {...props, key: 'layout', simulator} as any, $slots);
       }
       const ComputedComponent = componentName && getComponent(componentName);
       if (ComputedComponent) {
-        return h(ComputedComponent, { ...props, key: 'layout', simulator }, $slots);
+        return h(ComputedComponent, {...props, key: 'layout', simulator}, $slots);
       }
     }
     return renderSlot($slots, 'default');
@@ -36,8 +36,8 @@ export const SimulatorRendererView = defineComponent({
     },
   },
   render() {
-    const { simulator } = this;
-    return h(Layout, { simulator }, { default: () => h(RouterView) });
+    const {simulator} = this;
+    return h(Layout, {simulator}, {default: () => h(RouterView)});
   },
 });
 
@@ -54,11 +54,11 @@ export const Renderer = defineComponent({
       required: true,
     },
   },
-  setup: () => ({ renderer: ref() }),
+  setup: () => ({renderer: ref()}),
   render() {
-    const { documentInstance, simulator } = this;
-    const { schema, scope, messages } = documentInstance;
-    const { designMode, device, locale, components } = simulator;
+    const {documentInstance, simulator} = this;
+    const {schema, scope, messages} = documentInstance;
+    const {designMode, device, locale, components} = simulator;
 
     return h(Suspense, null, {
       default: () =>

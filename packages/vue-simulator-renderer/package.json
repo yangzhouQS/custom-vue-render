@@ -25,7 +25,6 @@
   "dependencies": {
     "@knxcloud/lowcode-hooks": "workspace:*",
     "@knxcloud/lowcode-utils": "workspace:*",
-    "@knxcloud/lowcode-vue-renderer": "workspace:*",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },

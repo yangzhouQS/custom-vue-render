@@ -1,5 +1,5 @@
-import type { DocumentModel } from '@alilc/lowcode-designer';
-import type { IPublicTypeContainerSchema } from '@alilc/lowcode-types';
+import type {DocumentModel} from '@alilc/lowcode-designer';
+import type {IPublicTypeContainerSchema} from '@alilc/lowcode-types';
 import {
   type Ref,
   type Component,
@@ -27,7 +27,7 @@ import VueRenderer, {
   LOWCODE_ROUTE_META,
   SchemaParser,
   setupLowCodeRouteGuard,
-} from '@knxcloud/lowcode-vue-renderer';
+} from './custom-vue-render';
 import {
   AssetLoader,
   buildUtils,
@@ -36,9 +36,9 @@ import {
   exportSchema,
   isArray,
 } from '@knxcloud/lowcode-utils';
-import { Renderer, SimulatorRendererView } from './simulator-view';
-import { Slot, Leaf, Page } from './buildin-components';
-import { host } from './host';
+import {Renderer, SimulatorRendererView} from './simulator-view';
+import {Slot, Leaf, Page} from './buildin-components';
+import {host} from './host';
 import {
   cursor,
   deepMerge,
@@ -55,11 +55,11 @@ import {
   parseFileNameToCompName,
 } from './utils';
 
-Object.assign(window, { VueRouter });
+Object.assign(window, {VueRouter});
 
 const loader = new AssetLoader();
 
-const builtinComponents = { Slot, Leaf, Page };
+const builtinComponents = {Slot, Leaf, Page};
 
 export interface ProjectContext {
   i18n: Record<string, object>;
@@ -276,7 +276,7 @@ function createSimulatorRenderer() {
     isSimulatorRenderer: true,
   }) as VueSimulatorRenderer;
 
-  simulator.app = markRaw(createApp(SimulatorRendererView, { simulator }));
+  simulator.app = markRaw(createApp(SimulatorRendererView, {simulator}));
   simulator.router = markRaw(
     VueRouter.createRouter({
       history: VueRouter.createMemoryHistory('/'),
@@ -302,7 +302,7 @@ function createSimulatorRenderer() {
 
   simulator.getClosestNodeInstance = (el, specId) => {
     if (isComponentRecord(el)) {
-      const { cid, did } = el;
+      const {cid, did} = el;
       const documentInstance = documentInstanceMap.get(did);
       const instance = documentInstance?.getComponentInstance(cid) ?? null;
       return instance && getClosestNodeInstanceByComponent(instance.$, specId);
@@ -312,7 +312,7 @@ function createSimulatorRenderer() {
 
   simulator.findDOMNodes = (instance: ComponentRecord) => {
     if (instance) {
-      const { did, cid } = instance;
+      const {did, cid} = instance;
       const documentInstance = documentInstanceMap.get(did);
       const compInst = documentInstance?.getComponentInstance(cid);
       return compInst ? findDOMNodes(compInst) : null;
@@ -324,11 +324,11 @@ function createSimulatorRenderer() {
   let createdCount = 0;
 
   // 根据schema创建组件
-  simulator.createComponent = ({ css, ...schema }) => {
+  simulator.createComponent = ({css, ...schema}) => {
     const compId = `Component-${schema.id || createdCount++}`;
     const CreatedComponent = defineComponent({
       props: VueRenderer.props,
-      setup: (props, { slots }) => {
+      setup: (props, {slots}) => {
         let styleEl = document.getElementById(compId);
         if (css && !styleEl) {
           const doc = window.document;
@@ -442,7 +442,7 @@ function createSimulatorRenderer() {
 
   disposeFunctions.push(
     host.autorun(() => {
-      const { router } = simulator;
+      const {router} = simulator;
       documentInstances.value = host.project.documents.map((doc) => {
 
         // 创建一个文档对象模型
@@ -484,7 +484,7 @@ function createSimulatorRenderer() {
       const inst = simulator.getCurrentDocument();
 
       // 跳转到新路由页面
-      inst && router.replace({ name: inst.id, force: true });
+      inst && router.replace({name: inst.id, force: true});
     })
   );
 
@@ -497,7 +497,7 @@ function createSimulatorRenderer() {
 
   host.injectionConsumer.consume((data) => {
     if (data.appHelper) {
-      const { utils, constants, ...others } = data.appHelper;
+      const {utils, constants, ...others} = data.appHelper;
       Object.assign(context.appHelper, {
         utils: isArray(utils) ? buildUtils(host.libraryMap, utils) : utils ?? {},
         constants: constants ?? {},
