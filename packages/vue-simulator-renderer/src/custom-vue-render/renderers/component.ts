@@ -17,6 +17,7 @@ export const ComponentRenderer = defineComponent({
 
     if (isFragment(Component)) {
       onMounted(() => {
+        debugger
         instance?.proxy && triggerCompGetCtx(schemaRef.value, instance.proxy);
       });
     }

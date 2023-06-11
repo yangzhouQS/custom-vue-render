@@ -86,6 +86,7 @@ const VueRenderer = defineComponent({
     }).initModule(props.schema);
 
     const triggerCompGetCtx = (schema: NodeSchema, val: ComponentPublicInstance) => {
+      debugger
       val && props.onCompGetCtx?.(schema, val);
     };
     const getNode = (id: string) => props.getNode?.(id) ?? null;
@@ -120,6 +121,8 @@ const VueRenderer = defineComponent({
       })),
       getNode: (id: string) => (props.getNode?.(id) as any) ?? null,
       triggerCompGetCtx: (schema: NodeSchema, inst: ComponentPublicInstance) => {
+
+        debugger
         props.onCompGetCtx?.(schema, inst);
       },
       rerender: debounce(() => {

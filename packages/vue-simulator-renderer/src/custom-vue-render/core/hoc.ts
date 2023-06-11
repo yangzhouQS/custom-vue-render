@@ -37,7 +37,6 @@ const useHocNode = (rerenderSlots: () => void) => {
     rerenderSlots: debouncedRerender,
   });
 
-  debugger
   if (!parentNode) {
     return {
       rerender: debouncedRerender,
@@ -62,7 +61,6 @@ export const Hoc = defineComponent({
     const nodeSchmea = shallowRef(props.__schema);
     const slotSchema = shallowRef<SlotSchemaMap>();
 
-    debugger
     const updateSchema = (newSchema: IPublicTypeNodeSchema) => {
       nodeSchmea.value = newSchema;
       slotSchema.value = buildSchema(newSchema, node).slots;

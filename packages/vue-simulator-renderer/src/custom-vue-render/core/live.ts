@@ -21,6 +21,8 @@ export const Live = defineComponent({
             mergeProps(compProps, vnodeProps, {
               onVnodeMounted(vnode) {
                 const instance = vnode.component?.proxy;
+
+                debugger
                 instance && triggerCompGetCtx(schema, instance);
               },
             }),

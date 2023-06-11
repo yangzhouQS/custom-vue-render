@@ -112,6 +112,7 @@ function createDocumentInstance(
 
 
   // 路由切换页面挂载时会自动加载，重新创建document文档模型
+  // 单个组件挂载
   const mountInstance = (id: string, instance: ComponentInstance) => {
     const docId = document.id;
     if (instance == null) {

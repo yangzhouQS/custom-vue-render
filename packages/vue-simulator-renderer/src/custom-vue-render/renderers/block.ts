@@ -19,6 +19,7 @@ export const BlockRenderer = defineComponent({
 
     if (isFragment(Component)) {
       onMounted(() => {
+        debugger
         instance?.proxy && triggerCompGetCtx(schemaRef.value, instance.proxy);
       });
     }

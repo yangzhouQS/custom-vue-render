@@ -275,6 +275,8 @@ export function useLeaf(
     base = wrapLeafComp(componentName, comp, base);
 
     const ref = (inst: ComponentPublicInstance) => {
+
+      debugger
       renderContext.triggerCompGetCtx(schema, inst);
     };
 
