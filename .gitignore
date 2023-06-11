@@ -30,3 +30,5 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+.idea
+yarn.lock

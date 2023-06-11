@@ -72,8 +72,14 @@ export function findComponent(
   return getSubComponent(library, paths);
 }
 
+/**
+ * 组件库注册处理
+ * @param libraryMap 组件库
+ * @param componentsMap 对象格式，组件名称和组件的映射map
+ * @param createComponent
+ */
 export function buildComponents(
-  libraryMap: Record<string, string>,
+  libraryMap: Record<string, string>, // 组件库
   componentsMap: Record<
     string,
     IPublicTypeNpmInfo | Component | IPublicTypeComponentSchema
@@ -83,13 +89,15 @@ export function buildComponents(
   const components: any = {};
   Object.keys(componentsMap).forEach((componentName) => {
     let component = componentsMap[componentName];
+
+    // val.componentName === 'Component' 自定义组件
     if (isComponentSchema(component)) {
-      if (createComponent) {
+      if (createComponent) { // Page Block
         components[componentName] = createComponent(
           component as IPublicTypeComponentSchema
         );
       }
-    } else if (isVueComponent(component)) {
+    } else if (isVueComponent(component)) { // Vue组件
       components[componentName] = component;
     } else {
       component = findComponent(libraryMap, componentName, component);

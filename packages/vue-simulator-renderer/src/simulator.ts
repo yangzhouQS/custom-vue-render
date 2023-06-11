@@ -110,6 +110,8 @@ function createDocumentInstance(
     return vueInstanceMap.get(id);
   };
 
+
+  // 路由切换页面挂载时会自动加载，重新创建document文档模型
   const mountInstance = (id: string, instance: ComponentInstance) => {
     const docId = document.id;
     if (instance == null) {
@@ -137,6 +139,7 @@ function createDocumentInstance(
 
     onUnmounted(() => unmountIntance(id, instance), instance.$);
 
+    // 设置组件节点id数据
     setCompRootData(el, {
       nodeId: id,
       docId: docId,
@@ -238,17 +241,20 @@ function createSimulatorRenderer() {
     },
   });
 
+  console.log('context-----------------')
+  console.log(window)
   const disposeFunctions: Array<() => void> = [];
 
   const documentInstanceMap = new Map<string, DocumentInstance>();
 
+  // 构建项目所有组件
   function _buildComponents() {
     components.value = {
       ...builtinComponents,
       ...buildComponents(
-        libraryMap.value,
-        componentsMap.value,
-        simulator.createComponent
+        libraryMap.value, // 组件库名称
+        componentsMap.value, // 组件名称和组件的映射
+        simulator.createComponent // 处理组件回调函数
       ),
     };
   }
@@ -316,6 +322,8 @@ function createSimulatorRenderer() {
   simulator.getComponent = (componentName) => components.value[componentName];
 
   let createdCount = 0;
+
+  // 根据schema创建组件
   simulator.createComponent = ({ css, ...schema }) => {
     const compId = `Component-${schema.id || createdCount++}`;
     const CreatedComponent = defineComponent({
@@ -436,6 +444,8 @@ function createSimulatorRenderer() {
     host.autorun(() => {
       const { router } = simulator;
       documentInstances.value = host.project.documents.map((doc) => {
+
+        // 创建一个文档对象模型
         let documentInstance = documentInstanceMap.get(doc.id);
         if (!documentInstance) {
           // TODO: 类型不兼容 IDocumentModel to DocumentModel，暂时用类型强转处理
@@ -444,6 +454,8 @@ function createSimulatorRenderer() {
         } else if (router.hasRoute(documentInstance.id)) {
           router.removeRoute(documentInstance.id);
         }
+
+        // 动态添加一组路由
         router.addRoute({
           name: documentInstance.id,
           path: documentInstance.path,
@@ -459,6 +471,8 @@ function createSimulatorRenderer() {
         });
         return documentInstance;
       });
+
+      // 移除无效路由信息
       router.getRoutes().forEach((route) => {
         const id = route.name as string;
         const hasDoc = documentInstances.value.some((doc) => doc.id === id);
@@ -468,6 +482,8 @@ function createSimulatorRenderer() {
         }
       });
       const inst = simulator.getCurrentDocument();
+
+      // 跳转到新路由页面
       inst && router.replace({ name: inst.id, force: true });
     })
   );

@@ -41,6 +41,8 @@ export const SimulatorRendererView = defineComponent({
   },
 });
 
+
+// 对应一个路由页面
 export const Renderer = defineComponent({
   props: {
     simulator: {
@@ -72,6 +74,8 @@ export const Renderer = defineComponent({
           disableCompMock: simulator.disableCompMock,
           thisRequiredInJSE: simulator.thisRequiredInJSE,
           getNode: (id) => documentInstance.getNode(id) as any,
+
+          // 组件 ctx 更新的回调，在组件每次 render 渲染周期我们都会为组件构造新的上下文环境，因此该回调函数会在组件每次 render 过程中触发，主要包含两个参数：
           onCompGetCtx: (schema, ref) => documentInstance.mountInstance(schema.id!, ref),
         }),
     });
