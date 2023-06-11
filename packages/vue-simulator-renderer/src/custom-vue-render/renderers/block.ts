@@ -14,6 +14,7 @@ export const BlockRenderer = defineComponent({
     const { triggerCompGetCtx } = useRendererContext();
     const { renderComp, schemaRef, componentsRef } = useRenderer(props, scope);
 
+    debugger
     const Component = componentsRef.value[schemaRef.value.componentName] || Fragment;
     const instance = getCurrentInstance();
 

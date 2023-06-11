@@ -11,7 +11,20 @@ export const PageRenderer = defineComponent({
   __renderer__: true,
   setup(props, context) {
     const { scope, wrapRender } = useRootScope(props, context);
+
+    // scope, schemaRef, designModeRef, componentsRef 变为动态的计算属性
+    /**
+     * useLeaf() 返回值
+     * node,
+     * locked,
+     * isRootNode: useIsRootNode(leafProps.__isRootNode),
+     * getNode,
+     * renderComp：renderHoc : renderLive
+     * buildProps,
+     * buildSlots,
+     */
     const { renderComp, componentsRef, schemaRef } = useRenderer(props, scope);
+
 
     return wrapRender(() => {
       return renderComp(schemaRef.value, null, componentsRef.value.Page || Page);

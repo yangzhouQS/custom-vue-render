@@ -34,7 +34,7 @@ import {
   onRenderTriggered,
   onServerPrefetch,
 } from 'vue';
-import type { Node, Prop } from '@alilc/lowcode-designer';
+import type {Node, Prop} from '@alilc/lowcode-designer';
 import type {
   IPublicTypeNodeData as NodeData,
   IPublicTypeSlotSchema as SlotSchema,
@@ -42,7 +42,7 @@ import type {
   IPublicTypeJSFunction as JSFunction,
   IPublicTypeCompositeValue as CompositeValue,
 } from '@alilc/lowcode-types';
-import { leafPropKeys, type LeafProps, type RendererProps } from './base';
+import {leafPropKeys, type LeafProps, type RendererProps} from './base';
 import {
   type MaybeArray,
   type BlockScope,
@@ -51,7 +51,7 @@ import {
   warnOnce,
   warn,
 } from '../utils';
-import { getCurrentNodeKey, useRendererContext } from '@knxcloud/lowcode-hooks';
+import {getCurrentNodeKey, useRendererContext} from '@knxcloud/lowcode-hooks';
 import {
   camelCase,
   isNil,
@@ -70,11 +70,11 @@ import {
   isArray,
   isI18nData,
 } from '@knxcloud/lowcode-utils';
-import { Hoc } from './hoc';
-import { Live } from './live';
-import { ensureArray, getI18n, mergeScope, AccessTypes, addToScope } from '../utils';
-import { createDataSourceManager } from '../data-source';
-import { createHookCaller } from './lifecycles';
+import {Hoc} from './hoc';
+import {Live} from './live';
+import {ensureArray, getI18n, mergeScope, AccessTypes, addToScope} from '../utils';
+import {createDataSourceManager} from '../data-source';
+import {createHookCaller} from './lifecycles';
 
 const currentNodeKey = getCurrentNodeKey();
 
@@ -190,12 +190,18 @@ export function useIsRootNode(isRootNode: boolean | null) {
   return isRootNode;
 }
 
+/**
+ * 构建叶子节点props
+ * @date 2023-6-11 19:00:55
+ * @param leafProps
+ * @param onChildShowChange
+ */
 export function useLeaf(
   leafProps: LeafProps,
   onChildShowChange: (schema: NodeSchema, show: boolean) => void = () => void 0
 ) {
   const renderContext = useRendererContext();
-  const { getNode, wrapLeafComp, designMode, thisRequiredInJSE } = renderContext;
+  const {getNode, wrapLeafComp, designMode, thisRequiredInJSE} = renderContext;
   const parser = new SchemaParser({
     thisRequired: thisRequiredInJSE,
   });
@@ -235,7 +241,7 @@ export function useLeaf(
       return createTextVNode(toDisplayString(result));
     }
 
-    const { show, scence } = buildShow(schema, scope, isDesignMode);
+    const {show, scence} = buildShow(schema, scope, isDesignMode);
     if (!show) {
       return createCommentVNode(`${scence} ${show}`);
     }
@@ -243,7 +249,7 @@ export function useLeaf(
     const node = schema.id ? getNode(schema.id) : null;
 
     // 若不传入 comp，则根据节点的 componentName 推断
-    const { componentName } = schema;
+    const {componentName} = schema;
     if (!comp) {
       comp = renderContext.components[componentName];
 
@@ -259,11 +265,11 @@ export function useLeaf(
         }
 
         comp = {
-          setup(props, { slots }) {
+          setup(props, {slots}) {
             warnOnce('组件未找到, 组件名：' + componentName);
             return h(
               'div',
-              mergeProps(props, { class: 'lc-component-not-found' }),
+              mergeProps(props, {class: 'lc-component-not-found'}),
               slots
             );
           },
@@ -274,16 +280,16 @@ export function useLeaf(
     // 应用节点组件的私有属性，适配 naive-ui 的 grid,popover 等组件
     base = wrapLeafComp(componentName, comp, base);
 
+    // 组件挂载
     const ref = (inst: ComponentPublicInstance) => {
-
-      debugger
+      // debugger
       renderContext.triggerCompGetCtx(schema, inst);
     };
 
-    const { props: rawProps, slots: rawSlots } = buildSchema(schema);
-    const { loop, buildLoopScope } = buildLoop(schema, scope);
+    const {props: rawProps, slots: rawSlots} = buildSchema(schema);
+    const {loop, buildLoopScope} = buildLoop(schema, scope);
     if (!loop) {
-      const props = buildProps(rawProps, scope, node, null, { ref });
+      const props = buildProps(rawProps, scope, node, null, {ref});
       const [vnodeProps, compProps] = splitProps(props);
       return h(
         base,
@@ -308,7 +314,7 @@ export function useLeaf(
 
     return loop.map((item, index, arr) => {
       const blockScope = buildLoopScope(item, index, arr.length);
-      const props = buildProps(rawProps, scope, node, blockScope, { ref });
+      const props = buildProps(rawProps, scope, node, blockScope, {ref});
       const [vnodeProps, compProps] = splitProps(props);
       return h(
         base,
@@ -576,11 +582,11 @@ export function useLeaf(
         propName === 'ref'
           ? buildRefProp(schema, mergedScope, blockScope, node?.getProp(propName) as Prop)
           : buildNormalProp(
-              schema,
-              mergedScope,
-              blockScope,
-              node?.getProp(propName) as Prop
-            );
+            schema,
+            mergedScope,
+            blockScope,
+            node?.getProp(propName) as Prop
+          );
     });
 
     // 应用运行时附加的属性值
@@ -629,7 +635,7 @@ export function useLeaf(
     const hidden = isDesignMode ? schema.hidden ?? false : false;
     const condition = schema.condition ?? true;
 
-    if (hidden) return { scence: 'hidden', show: false };
+    if (hidden) return {scence: 'hidden', show: false};
     return {
       scence: 'condition',
       show:
@@ -650,9 +656,15 @@ export function useLeaf(
   };
 }
 
+/**
+ * 渲染器 钩子函数
+ * @param rendererProps 配置属性
+ * @param scope proxy上下文
+ */
 export function useRenderer(rendererProps: RendererProps, scope: RuntimeScope) {
   const schemaRef = computed(() => rendererProps.__schema);
 
+  // 叶子节点props
   const leafProps: LeafProps = {
     __comp: null,
     __scope: scope,
@@ -664,11 +676,16 @@ export function useRenderer(rendererProps: RendererProps, scope: RuntimeScope) {
   const designModeRef = computed(() => rendererProps.__designMode ?? 'live');
   const componentsRef = computed(() => rendererProps.__components);
 
-  return { scope, schemaRef, designModeRef, componentsRef, ...useLeaf(leafProps) };
+  return {scope, schemaRef, designModeRef, componentsRef, ...useLeaf(leafProps)};
 }
 
+/**
+ * 根节点数据处理 hook
+ * @param rendererProps
+ * @param setupConext
+ */
 export function useRootScope(rendererProps: RendererProps, setupConext: object) {
-  const { __schema: schema, __scope: extraScope, __parser: parser } = rendererProps;
+  const {__schema: schema, __scope: extraScope, __parser: parser} = rendererProps;
 
   const {
     props: propsSchema,
@@ -681,6 +698,7 @@ export function useRootScope(rendererProps: RendererProps, setupConext: object) 
   const instance = getCurrentInstance()!;
   const scope = instance.proxy as RuntimeScope;
 
+  // 生命周期钩子函数匹配
   const callHook = createHookCaller(schema, scope, parser);
 
   callHook('initEmits');
@@ -688,8 +706,12 @@ export function useRootScope(rendererProps: RendererProps, setupConext: object) 
 
   // 处理 props
   callHook('initProps');
+
+
   if (propsSchema) {
     const props = parser.parseOnlyJsValue<object>(propsSchema);
+
+    // props构建配置合并在scope
     addToScope(scope, AccessTypes.PROPS, props);
   }
 
@@ -732,24 +754,24 @@ export function useRootScope(rendererProps: RendererProps, setupConext: object) 
 
   // 处理 i18n
   const i18n = (key: string, values?: any) => {
-    const { __locale: locale, __messages: messages } = rendererProps;
+    const {__locale: locale, __messages: messages} = rendererProps;
     return getI18n(key, values, locale, messages);
   };
 
   const currentLocale = computed(() => rendererProps.__locale);
-  addToScope(scope, AccessTypes.CONTEXT, { i18n, $t: i18n });
-  addToScope(scope, AccessTypes.DATA, { currentLocale });
+  addToScope(scope, AccessTypes.CONTEXT, {i18n, $t: i18n});
+  addToScope(scope, AccessTypes.DATA, {currentLocale});
 
   // 处理 dataSource
-  const { dataSource, dataSourceMap, reloadDataSource, hasInitDataSource } =
+  const {dataSource, dataSourceMap, reloadDataSource, hasInitDataSource} =
     createDataSourceManager(
-      schema.dataSource ?? { list: [], dataHandler: undefined },
+      schema.dataSource ?? {list: [], dataHandler: undefined},
       scope
     );
   const dataSourceData = Object.keys(dataSourceMap)
     .filter((key) => !(key in scope))
     .map((key) => [key, ref()]);
-  addToScope(scope, AccessTypes.CONTEXT, { dataSource, dataSourceMap, reloadDataSource });
+  addToScope(scope, AccessTypes.CONTEXT, {dataSource, dataSourceMap, reloadDataSource});
   addToScope(scope, AccessTypes.SETUP, fromPairs(dataSourceData));
 
   // 处理 renderer 额外传入的 scope
@@ -763,10 +785,12 @@ export function useRootScope(rendererProps: RendererProps, setupConext: object) 
     const promises: Promise<unknown>[] = [];
     isPromise(setupResult) && promises.push(setupResult);
     hasInitDataSource() && promises.push(reloadDataSource());
+
+    console.log(promises)
     return promises.length > 0 ? Promise.all(promises).then(() => render) : render;
   };
 
-  return { scope, wrapRender };
+  return {scope, wrapRender};
 }
 
 export function handleStyle(css: string | undefined, id: string | undefined) {
@@ -791,6 +815,7 @@ export function handleStyle(css: string | undefined, id: string | undefined) {
     style.parentElement?.removeChild(style);
   }
 }
+
 /**
  * 构建当前节点的 schema，获取 schema 的属性及插槽
  *
@@ -836,7 +861,7 @@ export const buildSchema = (schema: NodeSchema, node?: Node | null) => {
     }
   });
 
-  return { props: normalProps, slots: slotProps };
+  return {props: normalProps, slots: slotProps};
 };
 
 /**
@@ -915,7 +940,7 @@ const decorateDefaultSlot = (slot: Slot, locked: Ref<boolean>): Slot => {
         'lc-container-placeholder': true,
       };
       const placeholder = isLocked ? '锁定元素及子元素无法编辑' : '拖拽组件或模板到这里';
-      vnodes.push(h('div', { class: className }, placeholder));
+      vnodes.push(h('div', {class: className}, placeholder));
     }
     return vnodes;
   };
@@ -923,9 +948,9 @@ const decorateDefaultSlot = (slot: Slot, locked: Ref<boolean>): Slot => {
 
 const splitProps = createObjectSpliter(
   'key,ref,ref_for,ref_key,' +
-    'onVnodeBeforeMount,onVnodeMounted,' +
-    'onVnodeBeforeUpdate,onVnodeUpdated,' +
-    'onVnodeBeforeUnmount,onVnodeUnmounted'
+  'onVnodeBeforeMount,onVnodeMounted,' +
+  'onVnodeBeforeUpdate,onVnodeUpdated,' +
+  'onVnodeBeforeUnmount,onVnodeUnmounted'
 );
 
 export const splitLeafProps = createObjectSpliter(leafPropKeys);

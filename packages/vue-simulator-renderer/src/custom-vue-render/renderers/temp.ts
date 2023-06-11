@@ -13,6 +13,7 @@ export const TempRenderer = defineComponent({
 
     const instance = getCurrentInstance()!;
 
+    debugger
     onMounted(() => {
       debugger
       instance.proxy && triggerCompGetCtx(schemaRef.value, instance.proxy);

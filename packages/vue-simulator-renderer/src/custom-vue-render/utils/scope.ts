@@ -1,9 +1,9 @@
-import { isReactive, proxyRefs, type ComponentPublicInstance } from 'vue';
-import type { MaybeArray } from './array';
-import type { DataSourceItem } from '../data-source';
-import { isProxy, reactive } from 'vue';
-import { isBoolean, isObject, isUndefined } from '@knxcloud/lowcode-utils';
-import { warn } from './warn';
+import {isReactive, proxyRefs, type ComponentPublicInstance} from 'vue';
+import type {MaybeArray} from './array';
+import type {DataSourceItem} from '../data-source';
+import {isProxy, reactive} from 'vue';
+import {isBoolean, isObject, isUndefined} from '@knxcloud/lowcode-utils';
+import {warn} from './warn';
 
 export interface BlockScope {
   [x: string]: unknown;
@@ -21,9 +21,12 @@ declare module 'vue' {
 
 export interface RuntimeScope extends BlockScope, ComponentPublicInstance {
   i18n(key: string, values: any): string;
+
   currentLocale: string;
   dataSourceMap: Record<string, DataSourceItem>;
+
   reloadDataSource(): Promise<any[]>;
+
   __thisRequired: boolean;
   __loopScope?: boolean;
   __loopRefIndex?: number;
@@ -42,19 +45,24 @@ export function getAccessTarget(
   scope: RuntimeScope,
   accessType: AccessTypes
 ): Record<string, unknown> {
+  const setupState = scope.$.setupState
+  const data = scope.$.data
+  const props = scope.$.props
+  const ctx = scope.$.ctx
+  console.log(setupState, data, props, ctx)
   switch (accessType) {
     case AccessTypes.SETUP:
       return scope.$.setupState.__lcSetup
         ? scope.$.setupState
         : (scope.$.setupState = proxyRefs(
-            Object.create(null, {
-              __lcSetup: {
-                get: () => true,
-                enumerable: false,
-                configurable: false,
-              },
-            })
-          ));
+          Object.create(null, {
+            __lcSetup: {
+              get: () => true,
+              enumerable: false,
+              configurable: false,
+            },
+          })
+        ));
     case AccessTypes.DATA:
       return isReactive(scope.$.data) ? scope.$.data : (scope.$.data = reactive({}));
     case AccessTypes.PROPS:
@@ -70,6 +78,8 @@ export function addToScope(
   source: object,
   useDefineProperty?: boolean
 ): void {
+
+  // vue 组件实例
   const instance = scope.$;
   const target = getAccessTarget(scope, accessType);
   if (useDefineProperty) {
@@ -132,7 +142,7 @@ export function addToScope(
 
     if (Object.keys(propsOptions).length > 0) {
       instance.propsOptions = [
-        { ...rawPropsOptions, ...propsOptions },
+        {...rawPropsOptions, ...propsOptions},
         [...rawNeedCastKeys, ...needCastKeys],
       ];
     }

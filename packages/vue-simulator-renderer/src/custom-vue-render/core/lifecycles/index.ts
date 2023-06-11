@@ -42,6 +42,7 @@ export function createHookCaller(
     const lifeCycles = schema.lifeCycles ?? {};
     const lifeCycleSchema = lifeCycles[hook];
     const hookFn = VUE_LOWCODE_LIFTCYCLES_MAP[hook];
+
     if (lifeCycleSchema && hookFn) {
       return hookFn(parser, lifeCycleSchema, scope, [param1!, param2!]);
     }

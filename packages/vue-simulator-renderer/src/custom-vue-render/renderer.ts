@@ -78,19 +78,28 @@ type VueRendererProps = ExtractPublicPropTypes<typeof vueRendererProps>;
 
 const splitOptions = createObjectSpliter((prop) => !prop.match(/^[a-z]+([A-Z][a-z]+)*$/));
 
+
+// 单个页面根节点渲染组件
 const VueRenderer = defineComponent({
   props: vueRendererProps,
   setup(props, { slots, expose }) {
+
+    // 序列化函数片段
     const parser = new SchemaParser({
       thisRequired: props.thisRequiredInJSE,
     }).initModule(props.schema);
 
+
+    // 触发根节点更新
     const triggerCompGetCtx = (schema: NodeSchema, val: ComponentPublicInstance) => {
       debugger
       val && props.onCompGetCtx?.(schema, val);
     };
+
+    // documentInstance 获取文档id对应节点
     const getNode = (id: string) => props.getNode?.(id) ?? null;
 
+    // 基本数据类型响应式
     const schemaRef = shallowRef(props.schema);
 
     // 监听当前段schema
@@ -112,28 +121,35 @@ const VueRenderer = defineComponent({
 
     const wrapCached: Map<object, Map<object, any>> = new Map();
 
-    // 组件渲染上下文
+    // 渲染器上下文，挂载一些根节点数据信息
     const rendererContext = reactive({
-      designMode: computed(() => props.designMode),
-      components: computed(() => ({
+      designMode: computed(() => props.designMode), // 编辑器模式
+      components: computed(() => ({ // 组件列表
         ...config.getRenderers(),
         ...props.components,
       })),
-      getNode: (id: string) => (props.getNode?.(id) as any) ?? null,
-      triggerCompGetCtx: (schema: NodeSchema, inst: ComponentPublicInstance) => {
 
+      // 获取文档节点方法
+      getNode: (id: string) => (props.getNode?.(id) as any) ?? null,
+      // 组件更新时触发回调函数
+      triggerCompGetCtx: (schema: NodeSchema, inst: ComponentPublicInstance) => {
         debugger
         props.onCompGetCtx?.(schema, inst);
       },
+
+      // 手动触发渲染
       rerender: debounce(() => {
         const id = props.schema.id;
         const node = id && getNode(id);
         if (node) {
+          debugger
           const newSchema = exportSchema<ContainerSchema>(node);
           if (newSchema) {
             schemaRef.value = newSchema;
           }
         }
+
+        // 手动执行与 shallowRef 关联的任何副作用，强制更新视图。
         triggerRef(schemaRef);
       }),
 
@@ -172,15 +188,27 @@ const VueRenderer = defineComponent({
       },
     });
 
+    // 渲染上下文注入 windows.__rendererContext，挂载Windows上
     provide(getRendererContextKey(), rendererContext);
 
     const runtimeScope = ref<RuntimeScope>();
 
+    // 导出运行时scope上下文
     expose({ runtimeScope });
 
     const renderContent = () => {
       const { components } = rendererContext;
+
+      /**
+       * scope  {constants:{},utils:{}}
+       * locale: undefined
+       * messages: {}
+       * designMode: "design"
+       * thisRequiredInJSE: true
+       * passProps: undefined
+       */
       const { scope, locale, messages, designMode, thisRequiredInJSE, passProps } = props;
+
       const { value: schema } = schemaRef;
 
       if (!schema) return null;
@@ -191,6 +219,7 @@ const VueRenderer = defineComponent({
         Comp = RENDERER_COMPS[`${componentName}Renderer`];
       }
 
+      // Page / PageRenderer
       return Comp
         ? h(
             Comp,
@@ -220,6 +249,7 @@ const VueRenderer = defineComponent({
     return () => {
       const { device, locale } = props;
       const configProvider = config.getConfigProvider();
+
       return configProvider
         ? h(configProvider, { device, locale }, { default: renderContent })
         : renderContent();

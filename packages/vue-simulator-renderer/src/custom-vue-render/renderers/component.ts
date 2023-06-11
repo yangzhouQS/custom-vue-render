@@ -10,6 +10,7 @@ export const ComponentRenderer = defineComponent({
   setup(props, context) {
     const { scope, wrapRender } = useRootScope(props, context);
     const { triggerCompGetCtx } = useRendererContext();
+    debugger
     const { renderComp, schemaRef, componentsRef } = useRenderer(props, scope);
 
     const Component = componentsRef.value[schemaRef.value.componentName] || Fragment;
